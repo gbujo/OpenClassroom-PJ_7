@@ -7,12 +7,12 @@ st.title('Credit approval dashboard')
 
 # Accès aux data
 #
-
+data_path = 'c:/users/innov/python_venv/oc-pj7/input'
 @st.cache_data
 def load_data():
-    data = pd.read_csv('../data/application_train_features.csv', nrows=10000)
+    data = pd.read_csv(f'{data_path}/application_train_20250103.csv', nrows=10000)
     data = data.iloc[:, 3:]  # Je supprime des colonnes de réplication des index (je ne sais pas d'où elles viennent mais pas grave)
-    client_base =  pd.read_csv('../data/application_test_features.csv', nrows=1000)
+    client_base =  pd.read_csv(f'{data_path}/application_test_20250103.csv', nrows=1000)
     client_base = client_base.iloc[:, 3:]  # Je supprime des colonnes de réplication des index (je ne sais pas d'où elles viennent mais pas grave)
     return data, client_base
 
@@ -26,12 +26,13 @@ def load_client(id_client):
     client_data = client_base.loc[client_base['SK_ID_CURR'] == id_client, domain_features].stack()
     return client_data
 
-@st.cache_data
+
 def predict_client(id_client):
     # Mode bouchon
-    target = 1
-    score = 0.7
-    return target, score
+    decision = 'Client à risque'
+    score = 70.0
+    seuil_decision = 60.0
+    return decision, score, seuil_decision
 
 
 # Load data
@@ -54,8 +55,34 @@ client_data = load_client(id_client)  # Recherche infos sur le client
 st.subheader('Client data :')
 st.write(client_data)
 
-client_target, client_score = predict_client(id_client)  # Recherche prédictions
+client_decision, client_score, seuil_decision = predict_client(id_client)  # Recherche prédictions
 st.subheader('Client scoring :')
-st.write(client_target, client_score)
+st.write(client_decision, client_score)
 
 
+# Afficher une jauge
+#
+import plotly.graph_objects as go
+
+def afficher_jauge(valeur, titre, seuil, min_val=0, max_val=100):
+    fig = go.Figure(go.Indicator(
+        mode = "gauge+number",
+        value = valeur,
+        title = {'text': titre},
+        domain = {'x': [0, 1], 'y': [0, 1]},
+        gauge = {
+            'axis': {'range': [min_val, max_val]},
+            'bar': {'color': "darkblue"}, # Couleur de la barre
+            'steps' : [
+                {'range': [min_val, seuil], 'color': "green"}, # Zones de couleur
+#                {'range': [max_val/3, 2*max_val/3], 'color': "orange"},
+                {'range': [seuil, max_val], 'color': "red"}],
+            'threshold' : {
+                'line': {'color': "black", 'width': 4},
+                'thickness': 0.75,
+                'value': seuil} # Seuil avec une ligne
+        }
+    ))
+    st.plotly_chart(fig)
+
+afficher_jauge(client_score, "Score risque crédit", seuil_decision, 0, 100)
