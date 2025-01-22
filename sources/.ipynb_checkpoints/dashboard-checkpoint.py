@@ -4,6 +4,10 @@ import numpy as np
 
 st.title('Credit approval dashboard')
 
+
+# Accès aux data
+#
+
 @st.cache_data
 def load_data():
     data = pd.read_csv('../data/application_train_features.csv', nrows=10000)
