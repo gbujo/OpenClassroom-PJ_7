@@ -1,6 +1,11 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+
+# Modules homemade
+import dashboard_graphs
+import predict_client  # Bouchon dans le meme répertoire
 
 st.title('Credit approval dashboard')
 
@@ -27,14 +32,6 @@ def load_client(id_client):
     return client_data
 
 
-def predict_client(id_client):
-    # Mode bouchon
-    decision = 'Client à risque'
-    score = 70.0
-    seuil_decision = 60.0
-    return decision, score, seuil_decision
-
-
 # Load data
 #
 # Create a text element and let the reader know the data is loading.
@@ -55,7 +52,7 @@ client_data = load_client(id_client)  # Recherche infos sur le client
 st.subheader('Client data :')
 st.write(client_data)
 
-client_decision, client_score, seuil_decision = predict_client(id_client)  # Recherche prédictions
+client_decision, client_score, seuil_decision = predict_client.predict_client(id_client)  # Recherche prédictions
 st.subheader('Client scoring :')
 st.write(client_decision, client_score)
 
@@ -86,3 +83,13 @@ def afficher_jauge(valeur, titre, seuil, min_val=0, max_val=100):
     st.plotly_chart(fig)
 
 afficher_jauge(client_score, "Score risque crédit", seuil_decision, 0, 100)
+
+# Autres clients
+#
+st.subheader('Positionnement du client :')
+
+
+# Affichage du graphique dans Streamlit
+fig, ax = plt.subplots()
+ax = dashboard_graphs.graph_code_gender_f(ax, data)
+st.pyplot(fig)  # On passe directement l'objet figure
