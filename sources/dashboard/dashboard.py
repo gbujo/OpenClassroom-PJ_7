@@ -3,11 +3,23 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Modules homemade
-import dashboard_graphs
-import predict_client  # Bouchon dans le meme répertoire
+# Import modules homemade
+import dashboard_graphs  # dans le même répertoire
+
+# Cas particullier predict qui pour l'instant n'est pas encore transformée en API
+import sys
+import os
+# Obtenir le chemin absolu du répertoire contenant le module
+chemin_module = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "predict")) # Remonter d'un répertoire parent
+# Ajouter le chemin au sys.path
+sys.path.append(chemin_module)
+# Maintenant, vous pouvez importer le module
+import predict_client  # dans répertoire différent
+
 
 st.title('Credit approval dashboard')
+
+st.write(os.getcwd())
 
 
 # Accès aux data
@@ -43,7 +55,7 @@ data_load_state.text("Done! (using st.cache_data)")
 
 if st.checkbox('Show raw data'):
     st.subheader('Raw data')
-    st.write(data)
+    st.write(client_base)
 
 # Client courant
 #
@@ -52,9 +64,13 @@ client_data = load_client(id_client)  # Recherche infos sur le client
 st.subheader('Client data :')
 st.write(client_data)
 
-client_decision, client_score, seuil_decision = predict_client.predict_client(id_client)  # Recherche prédictions
+
+# Prédictions sur le client courant :
+client_decision, client_score, seuil_decision = predict_client.predict_client(client_data.to_numpy().reshape(1, -1))  # Transfo dataframe en array 2 dimensions (10 features, 1 sample)
+client_score = client_score*100
+seuil_decision = seuil_decision*100
 st.subheader('Client scoring :')
-st.write(client_decision, client_score)
+st.write(predict_client.predict_client(client_data.to_numpy().reshape(1, -1)))
 
 
 # Afficher une jauge
