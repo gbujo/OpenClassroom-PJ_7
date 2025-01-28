@@ -19,16 +19,16 @@ import predict_client  # dans répertoire différent
 
 st.title('Credit approval dashboard')
 
-st.write(os.getcwd())
-
 
 # Accès aux data
 #
 data_path = 'c:/users/innov/python_venv/oc-pj7/input'
 @st.cache_data
 def load_data():
+#    data = pd.read_csv(f'{data_path}/application_train_20250103.csv', nrows=10000)
     data = pd.read_csv(f'{data_path}/application_train_20250103.csv', nrows=10000)
     data = data.iloc[:, 3:]  # Je supprime des colonnes de réplication des index (je ne sais pas d'où elles viennent mais pas grave)
+#    client_base =  pd.read_csv(f'{data_path}/application_test_20250103.csv', nrows=1000)
     client_base =  pd.read_csv(f'{data_path}/application_test_20250103.csv', nrows=1000)
     client_base = client_base.iloc[:, 3:]  # Je supprime des colonnes de réplication des index (je ne sais pas d'où elles viennent mais pas grave)
     return data, client_base
@@ -69,7 +69,7 @@ st.write(client_data)
 client_decision, client_score, seuil_decision = predict_client.predict_client(client_data.to_numpy().reshape(1, -1))  # Transfo dataframe en array 2 dimensions (10 features, 1 sample)
 client_score = client_score*100
 seuil_decision = seuil_decision*100
-st.subheader('Client scoring :')
+st.subheader(f'Décision : {"Crédit refusé" if client_decision == 1 else "Crédit accordé"}')
 st.write(predict_client.predict_client(client_data.to_numpy().reshape(1, -1)))
 
 
