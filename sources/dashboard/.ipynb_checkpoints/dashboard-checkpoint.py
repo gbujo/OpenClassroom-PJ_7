@@ -40,7 +40,8 @@ def load_client(id_client):
                      'EXT_SOURCE_2',
                      'AMT_ALL_SUM_MEAN', 'RATIO_ALL_SUM_DEBT_TO_INCOME', 'RATIO_ALL_SUM_OVERDUE_TO_INCOME',
                      'RATIO_ALL_MAX_OVERDUE_TO_INCOME']
-    client_data = client_base.loc[client_base['SK_ID_CURR'] == id_client, domain_features].stack()
+#    client_data = client_base.loc[client_base['SK_ID_CURR'] == id_client, domain_features].stack()
+    client_data = client_base.loc[client_base['SK_ID_CURR'] == id_client, domain_features]
     return client_data
 
 
@@ -62,14 +63,14 @@ if st.checkbox('Show raw data'):
 id_client = st.number_input('Numéro client :', value=None, format="%d", min_value=0, step=1)  # Input ID client
 client_data = load_client(id_client)  # Recherche infos sur le client
 st.subheader('Client data :')
-st.write(client_data)
+st.write(client_data.stack())
 
 
 # Prédictions sur le client courant :
 client_decision, client_score, seuil_decision = predict_client.predict_client(client_data.to_numpy().reshape(1, -1))  # Transfo dataframe en array 2 dimensions (10 features, 1 sample)
 client_score = client_score*100
 seuil_decision = seuil_decision*100
-st.subheader(f'Décision : {"Crédit refusé" if client_decision == 1 else "Crédit accordé"}')
+st.subheader(f'Evaluation client : {"Client risqué" if client_decision == 1 else "Client non risqué"}')
 st.write(predict_client.predict_client(client_data.to_numpy().reshape(1, -1)))
 
 
@@ -98,14 +99,20 @@ def afficher_jauge(valeur, titre, seuil, min_val=0, max_val=100):
     ))
     st.plotly_chart(fig)
 
-afficher_jauge(client_score, "Score risque crédit", seuil_decision, 0, 100)
+afficher_jauge(client_score, "Score risque client", seuil_decision, 0, 100)
 
 # Autres clients
 #
 st.subheader('Positionnement du client :')
 
+#  A FAIRE
+# dict_graph = dashboard_graphs.init_graph()
 
 # Affichage du graphique dans Streamlit
-fig, ax = plt.subplots()
-ax = dashboard_graphs.graph_code_gender_f(ax, data)
+fig, axs = plt.subplots(1,2, layout='constrained')
+_ = dashboard_graphs.graph_2categories(axs[0], data, 'CODE_GENDER_F', ['Autre genre','Genre féminin', 'Client en cours'],
+                                         client_target=client_decision, client_data=client_data)
+_ = dashboard_graphs.graph_2categories(axs[1], data, 'FLAG_RISKED_ORGANIZATION_TYPE', ['Autre organisation','Auto-entrepreneur', 'Client en cours'],
+                                         client_target=client_decision, client_data=client_data)
+
 st.pyplot(fig)  # On passe directement l'objet figure
