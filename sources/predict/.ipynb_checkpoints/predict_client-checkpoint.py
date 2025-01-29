@@ -59,4 +59,5 @@ def predict_client(X) :
         return 1, 1, 1
     
 #    return decision, score, seuil_decision pour 1 seul client
-    return decision[0], score[0,1], seuil_decision
+#    return decision[0], score[0,1], seuil_decision
+    return decision, score, seuil_decision

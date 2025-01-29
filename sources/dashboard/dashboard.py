@@ -24,9 +24,8 @@ import predict_client  # dans répertoire différent
 @st.cache_data
 def load_data(data_path, domain_features):
 #    data = pd.read_csv(f'{data_path}/application_train_20250103.csv', nrows=10000)
-    data = pd.read_csv(f'{data_path}/application_train_20250103.csv', nrows=10000)
-    data = data.iloc[:, 3:]  # Je supprime des colonnes de réplication des index (je ne sais pas d'où elles viennent mais pas grave)
-#    client_base =  pd.read_csv(f'{data_path}/application_test_20250103.csv', nrows=1000)
+    data = pd.read_csv(f'{data_path}/application_train_20250103_pred.csv')
+    data = data.sample(50000, random_state=145)
     client_base =  pd.read_csv(f'{data_path}/application_test_20250103.csv', nrows=1000)
     client_base = client_base.iloc[:, 3:]  # Je supprime des colonnes de réplication des index (je ne sais pas d'où elles viennent mais pas grave)
     return data, client_base
@@ -95,7 +94,7 @@ def main():
                         'EXT_SOURCE_2': 'Evaluation risque externe',
                         'AMT_ALL_SUM_MEAN': 'Montant moyen crédits passés',
                         'RATIO_ALL_SUM_DEBT_TO_INCOME': 'Ratio d\'endettement',
-                        'RATIO_ALL_SUM_OVERDUE_TO_INCOME': 'Ratio défault de paiement',
+                        'RATIO_ALL_SUM_OVERDUE_TO_INCOME': 'Ratio défaut de paiement',
                         'RATIO_ALL_MAX_OVERDUE_TO_INCOME': 'Ratio défaut paiement mensuel MAX'}
         feature_label_inverse = {valeur: cle for cle, valeur in feature_label.items()}  # Dictionnaire inversé pour retrouver le code avec le libellé
         feature_domain = list(feature_label.keys())
@@ -115,7 +114,8 @@ def main():
         
         # Client courant
         #
-        id_client = st.number_input(label='Numéro client :', value=None, format="%d", min_value=0, step=1, placeholder='Renseigner un numéro de client')  # Input ID client
+        id_client = st.number_input(label='Numéro client :', value=None, format="%d", min_value=0, step=1, 
+                                    placeholder='Renseigner un numéro de client')  # Input ID client
         if id_client is None :
             raise ValueError('Renseigner un numéro de client')
         client_data = load_client(id_client, client_base, feature_domain)  # Recherche infos sur le client
@@ -129,7 +129,8 @@ def main():
         
         # Prédictions sur le client courant 
         #
-        client_decision, client_score, seuil_decision = predict_client.predict_client(client_data.to_numpy().reshape(1, -1))  # Transfo dataframe en array 2 dimensions (10 features, 1 sample)
+        y_decision, y_score, seuil_decision = predict_client.predict_client(client_data.to_numpy().reshape(1, -1))  # Transfo dataframe en array 2 dimensions (10 features, 1 sample)
+        client_decision, client_score = y_decision[0], y_score[0,1]  # Rècupère les valeurs pour 1er client
         client_score = client_score*100
         seuil_decision = seuil_decision*100
         st.subheader(f'Evaluation client : {"Client risqué" if client_decision == 1 else "Client non risqué"}')

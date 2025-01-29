@@ -58,7 +58,7 @@ def graph_qualitatif(axe, data, feature, feature_quali, feature_label, client_ta
     
     # Construction serie 2D : data pour les deux valeurs de TARGET
 #    data_grouped = data.groupby('TARGET')[feature]
-    data_grouped = data.loc[(data[feature] >= xmin) & (data[feature] <= xmax)].groupby('TARGET')[feature]
+    data_grouped = data.loc[((data[feature] >= xmin) & (data[feature] <= xmax)), :].groupby('TARGET')[feature]
     serie=[]
     for name, group in data_grouped:
         serie.append(group.to_list())
@@ -67,7 +67,8 @@ def graph_qualitatif(axe, data, feature, feature_quali, feature_label, client_ta
     client_feature = client_data[feature].to_list()[0]
 
 #    axe.hist(serie, bins=100, density=True, label=target_label, color=['g', 'r'], histtype='step')
-    sns.kdeplot(data, x=feature, hue='TARGET', common_norm=False, ax=axe, palette=['g', 'r'])
+    sns.kdeplot(data.loc[((data[feature] >= xmin) & (data[feature] <= xmax)), :],
+                x=feature, hue='TARGET', common_norm=False, ax=axe, palette=['g', 'r'], cut=0)
     
     axe.set_xlabel(feature_label, fontsize='medium')
     axe.set_ylabel('Proportion des clients', fontsize='small')
@@ -80,7 +81,7 @@ def graph_qualitatif(axe, data, feature, feature_quali, feature_label, client_ta
         plt.arrow(0, xmax, 0.5, 0.5)
     else :
         axe.axvline(client_feature, c='b', ls='--')
-    axe.legend(target_label, fontsize='small')  
+#    axe.legend(target_label, fontsize='small')  # Bug avec legend produite par sns (ordre inversé)
     plt.show()
 
     return axe

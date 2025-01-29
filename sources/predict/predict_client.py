@@ -39,9 +39,9 @@ def predict_client_bouchon(X):
     return decision, score, seuil_decision
 
 def predict_client(X) :
-# Prédiction pour 1 client
+# Prédiction pour n clients
 #   Input :
-#     X : array n features for 1 client (2 dimensions)
+#     X : array n features for n clients (2 dimensions)
 
     # Load model
     # Indique le chemin absolu du répertoire contenant le module
@@ -59,4 +59,5 @@ def predict_client(X) :
         return 1, 1, 1
     
 #    return decision, score, seuil_decision pour 1 seul client
-    return decision[0], score[0,1], seuil_decision
+#    return decision[0], score[0,1], seuil_decision
+    return decision, score, seuil_decision
