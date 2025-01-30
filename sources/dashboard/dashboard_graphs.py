@@ -180,7 +180,7 @@ def graph_heatmap(axe, data, features, feature_quali, feature_label, client_targ
     nodes = [0.0, seuil_decision-0.05, seuil_decision, 1.0]
     cmap_seuil_decision = LinearSegmentedColormap.from_list("mycmap", list(zip(nodes, colors)))
     
-    sns.heatmap(pivot_table, annot=True, fmt='.2f', cmap=cmap_seuil_decision,
+    sns.heatmap(pivot_table, annot=False, fmt='.2f', cmap=cmap_seuil_decision,
                 vmin=0, vmax=1,
                ax=axe, cbar=cbar)
 
