@@ -151,8 +151,9 @@ def main():
             feature1 = feature_label_inverse[feature_selected[0]]
             feature2 = feature_label_inverse[feature_selected[1]]
                          
-            # Affichage du graphique dans Streamlit
-            fig, axs = plt.subplots(1,2, layout='constrained')
+            # Graphs pour les 2 features
+            #
+            fig, axs = plt.subplots(1,2, layout='constrained', figsize=[6, 3])
 
             # Choix du graph selon le type de features (quanti ou quali)
             for i, feat in enumerate([feature1, feature2]) :
@@ -164,6 +165,36 @@ def main():
                                                              client_target=client_decision, client_data=client_data)
             
             st.pyplot(fig)  # On passe directement l'objet figure
+
+            # Grah bi-varié OLD
+            #
+            # fig = dashboard_graphs.graph_bivarie_marker(None, data, [feature1, feature2], None, None,
+            #                                          client_target=client_decision, client_data=client_data, streamlit=st)
+            # st.pyplot(fig)  # On passe directement l'objet figure
+
+            # Heatmaps
+            #
+            st.write('Carte des scores moyen des clients')
+            fig, axs = plt.subplots(1,2, layout='constrained', figsize=[6, 3])
+
+            # Client non risqué
+            _ = dashboard_graphs.graph_heatmap(axs[0], data.loc[data['TARGET'] == 0, :],
+                                               [feature1, feature2],
+                                               None, [feature_label[feature1], feature_label[feature2]],
+                                               client_target=client_decision, client_data=client_data, seuil_decision=seuil_decision,
+                                              cbar=False)
+            axs[0].set_title('Client non risqué', fontsize='medium')
+            
+            # Client risqué
+            _ = dashboard_graphs.graph_heatmap(axs[1],  data.loc[data['TARGET'] == 1, :],
+                                               [feature1, feature2],
+                                   None, [feature_label[feature1], feature_label[feature2]],
+                                   client_target=client_decision, client_data=client_data, seuil_decision=seuil_decision,
+                                              cbar=True)
+            axs[1].set_title('Client risqué', fontsize='medium')
+
+            st.pyplot(fig)  # On passe directement l'objet figure
+
         else :
             st.write('Vous devez selectionner 2 features')
 
