@@ -106,7 +106,7 @@ def main():
         # Load data
         data, client_base = load_data(data_path, feature_domain)
         # Notify the reader that the data was successfully loaded.
-        data_load_state.text("Done! (using st.cache_data)")
+        data_load_state.text("")
         
         if st.checkbox('Show raw data'):
             st.subheader('Raw data')
