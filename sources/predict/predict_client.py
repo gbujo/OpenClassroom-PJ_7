@@ -1,6 +1,6 @@
 # API prédiction client
-
-import pickle
+import numpy as np
+import pickle  # Fait parti de Python
 
 # Pour accèder au modèle
 import sys
@@ -33,15 +33,16 @@ def load_model(filepath):
 
 def predict_client_bouchon(X):
     # Mode bouchon
-    decision = 1
-    score = 70.0
-    seuil_decision = 60.0
+    decision = 0
+    score = 1.0
+    seuil_decision = 99.9
     return decision, score, seuil_decision
 
 def predict_client(X) :
-# Prédiction pour n clients
-#   Input :
-#     X : array n features for n clients (2 dimensions)
+    """ Prédiction pour n clients
+       Input :
+            X : array n features for n clients (2 dimensions)
+    """
 
     # Load model
     # Indique le chemin absolu du répertoire contenant le module

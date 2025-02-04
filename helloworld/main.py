@@ -9,7 +9,13 @@ app = Flask(__name__)
 def hello_world():
     """Example Hello World route."""
     name = os.environ.get("NAME", "World")
-    return f"Hello {name}!"
+    return f"Hello Guillaume {name}!"
+
+@app.route("/test")
+def test_url():
+    """Example Hello World route."""
+    name = os.environ.get("NAME", "World")
+    return f"Test d'URL"
 
 
 if __name__ == "__main__":

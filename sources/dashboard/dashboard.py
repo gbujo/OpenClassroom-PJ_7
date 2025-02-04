@@ -23,11 +23,10 @@ import predict_client  # dans répertoire différent
 
 @st.cache_data
 def load_data(data_path, domain_features):
-#    data = pd.read_csv(f'{data_path}/application_train_20250103.csv', nrows=10000)
-    data = pd.read_csv(f'{data_path}/application_train_20250103_pred.csv')
+    data = pd.read_csv(f'{data_path}/application_train_final.csv', nrows=100000)
     data = data.sample(50000, random_state=145)
-    client_base =  pd.read_csv(f'{data_path}/application_test_20250103.csv', nrows=1000)
-    client_base = client_base.iloc[:, 3:]  # Je supprime des colonnes de réplication des index (je ne sais pas d'où elles viennent mais pas grave)
+    client_base =  pd.read_csv(f'{data_path}/application_test_final.csv', nrows=1000)
+    # client_base = client_base.iloc[:, 3:]  # Je supprime des colonnes de réplication des index (je ne sais pas d'où elles viennent mais pas grave)
     return data, client_base
 
 @st.cache_data
@@ -70,7 +69,7 @@ def main():
         # Paramètres Features
         #
         # Chemin d'accès aux datas
-        data_path = 'c:/users/innov/python_venv/oc-pj7/input'
+        data_path = 'https://storage.googleapis.com/bkjhd-sjhgsd-sq-iuoiu-iu-h-kjhkjh-jh/input'
 
 #        # Liste features
 #        feature_domain=['DAYS_BIRTH', 'CODE_GENDER_F', 'FLAG_RISKED_ORGANIZATION_TYPE', 
