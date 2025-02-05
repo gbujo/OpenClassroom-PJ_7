@@ -128,12 +128,13 @@ def main():
         
         # Prédictions sur le client courant 
         #
-        y_decision, y_score, seuil_decision = predict_client.predict_client(client_data.to_numpy().reshape(1, -1))  # Transfo dataframe en array 2 dimensions (10 features, 1 sample)
-        client_decision, client_score = y_decision[0], y_score[0,1]  # Rècupère les valeurs pour 1er client
-        client_score = client_score*100
-        seuil_decision = seuil_decision*100
+#        y_decision, y_score, seuil_decision = predict_client.predict_client(client_data.to_numpy().reshape(1, -1))
+#        client_decision, client_score = y_decision[0], y_score[0,1]  # Rècupère les valeurs pour 1er client
+#        client_score = client_score*100
+#        seuil_decision = seuil_decision*100
+        client_decision, client_score, seuil_decision = predict_client.predict_Oneclient(client_data.to_numpy())  # Transfo dataframe en array 1 dimension (10 features)
         st.subheader(f'Evaluation client : {"Client risqué" if client_decision == 1 else "Client non risqué"}')
-        st.write(predict_client.predict_client(client_data.to_numpy().reshape(1, -1)))
+        st.write(predict_client.predict_Oneclient(client_data.to_numpy()))
         
         
         

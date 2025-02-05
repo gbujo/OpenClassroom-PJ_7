@@ -62,3 +62,29 @@ def predict_client(X) :
 #    return decision, score, seuil_decision pour 1 seul client
 #    return decision[0], score[0,1], seuil_decision
     return decision, score, seuil_decision
+
+def predict_Oneclient(X) :
+    """ Prédiction pour 1 client
+       Input :
+            X : array n features for 1 client (1 dimension)
+    """
+
+    # Load model
+    # Indique le chemin absolu du répertoire contenant le module
+    model_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'model', 'model.pkl')) 
+    loaded_model = load_model(model_path)
+    
+    if loaded_model:
+        # Now you can use the loaded model
+        print(type(loaded_model)) # Print the type of the model for verification
+        X = X.reshape(1, -1)  # Nécessité de remettre à 2D pour predict et predict_proba
+        decision = loaded_model.predict(X)
+        score = loaded_model.predict_proba(X)
+        seuil_decision = loaded_model.best_threshold_
+    else:
+        print("Model loading failed.")
+        return 1, 1, 1
+    
+#    return decision, score, seuil_decision pour 1 seul client
+#    return decision[0], score[0,1], seuil_decision
+    return int(decision[0]), score[0,1]*100, seuil_decision*100
