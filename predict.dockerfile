@@ -15,4 +15,4 @@ COPY /sources/predict/main.py /sources/predict/model.pkl /sources/predict/predic
 # final configuration
 ENV FLASK_APP=main
 EXPOSE 8000
-CMD ["flask", "run", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["flask", "run", "--host", "0.0.0.0", "--port", "8080"]
