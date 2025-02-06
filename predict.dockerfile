@@ -2,8 +2,8 @@
 FROM ubuntu:22.04
 
 #GBUJ
-WORKDIR /sources/predict
-COPY requierements.txt /
+#WORKDIR /sources/predict
+COPY /sources/predict/requierements.txt /
 
 # install app dependencies
 RUN apt-get update && apt-get install -y python3 python3-pip
