@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 FROM ubuntu:22.04
 
-#GBUJ
+#GBUJ test
 COPY requierements.txt /
 
 # install app dependencies
