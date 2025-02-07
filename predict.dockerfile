@@ -5,6 +5,11 @@ FROM python:3.10-slim-buster
 WORKDIR /app  
 # Définir le répertoire de travail dans le conteneur
 
+# Création et activation de l'environnement virtuel
+RUN python -m venv .venv
+RUN source .venv/bin/activate
+
+
 COPY /sources/predict/requierements.txt .  
 # Copier seulement le fichier requirements.txt
 RUN pip install --no-cache-dir -r requierements.txt  
