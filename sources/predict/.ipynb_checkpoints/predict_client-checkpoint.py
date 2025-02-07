@@ -48,7 +48,8 @@ def predict_client(X) :
     # Indique le chemin absolu du répertoire contenant le module
 #    model_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'model', 'model.pkl')) 
     model_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'model.pkl'))  # Model se trouve dans le meme répertoire
-    loaded_model = load_model(model_path)
+#    loaded_model = load_model(model_path)
+    loaded_model = pickle.load('https://storage.googleapis.com/bkjhd-sjhgsd-sq-iuoiu-iu-h-kjhkjh-jh/model/model.pkl')
     
     if loaded_model:
         # Now you can use the loaded model
