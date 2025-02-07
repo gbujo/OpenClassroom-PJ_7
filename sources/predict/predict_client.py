@@ -86,7 +86,7 @@ def predict_Oneclient(X) :
         seuil_decision = loaded_model.best_threshold_
     else:
         print("Model loading failed.")
-        return 1, 1, 1
+        return 2, 2, 2
     
 #    return decision, score, seuil_decision pour 1 seul client
 #    return decision[0], score[0,1], seuil_decision
