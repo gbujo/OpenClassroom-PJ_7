@@ -24,6 +24,18 @@ import predict_client
 
 app = Flask(__name__)
 
+@app.route("/liretxt")
+def lire_txt():
+    try:
+        with open("test.txt", "r") as fichier:
+            contenu = fichier.read()
+            print(contenu)
+    except FileNotFoundError:
+        print("Le fichier n'a pas été trouvé.")
+    except Exception as e:
+        print(f"Une erreur est survenue : {e}")
+    return f"Fichier test.txt {contenu}!"
+
 
 @app.route("/")
 def hello_world():
