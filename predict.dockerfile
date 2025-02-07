@@ -12,6 +12,7 @@ RUN pip install --no-cache-dir -r requierements.txt
 
 COPY /sources/predict/. .  
 # Copier tout le code source (plus simple et efficace)
+COPY /sources/predict/model.pkl .
 
 EXPOSE 8080  
 # Exposer le port
