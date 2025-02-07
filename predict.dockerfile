@@ -6,8 +6,8 @@ WORKDIR /app
 # Définir le répertoire de travail dans le conteneur
 
 # Création et activation de l'environnement virtuel
-RUN python -m venv .venv
-RUN source .venv/bin/activate
+# RUN python -m venv .venv
+# RUN source .venv/bin/activate
 
 
 COPY /sources/predict/requierements.txt .  
