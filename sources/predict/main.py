@@ -19,6 +19,7 @@ from flask import Flask, request, jsonify
 import numpy as np
 
 
+
 import predict_client
 
 app = Flask(__name__)

@@ -5,6 +5,9 @@ import pickle  # Fait parti de Python
 # Pour accèder au modèle
 import sys
 import os
+import logging
+
+
 
 def load_model(filepath):
     """Loads a pickled model from the specified filepath.
@@ -20,15 +23,20 @@ def load_model(filepath):
         with open(filepath, 'rb') as file:  # 'rb' for read binary
             model = pickle.load(file)
         print(f"Model loaded successfully from {filepath}")  # Confirmation message
+        # Écriture dans les journaux
+        logging.info(f"Model loaded successfully from {filepath}")
         return model
     except FileNotFoundError:
-        print(f"Error: File not found at {filepath}")
+        print(f'Error: File not found at {filepath}')
+        logging.error(f'Error: File not found at {filepath}')
         return None
     except pickle.UnpicklingError:
         print(f"Error: Could not unpickle the file at {filepath}. It might be corrupted or created with a different pickle protocol.")
+        logging.error(f"Error: Could not unpickle the file at {filepath}. It might be corrupted or created with a different pickle protocol.")
         return None
     except Exception as e: # Catch other potential errors
         print(f"An unexpected error occurred: {e}")
+        logging.error(f"An unexpected error occurred: {e}")
         return None
 
 def predict_client_bouchon(X):
@@ -73,7 +81,7 @@ def predict_Oneclient(X) :
     # Load model
     # Indique le chemin absolu du répertoire contenant le module
 #    model_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'model', 'model.pkl')) 
-    model_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'model.pkl'))  # model dans le meme répertoire (c est plus simple)
+#    model_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'model.pkl'))  # model dans le meme répertoire (c est plus simple)
 #    loaded_model = load_model(model_path)
     loaded_model = load_model('model.pkl')
 #    loaded_model = pickle.load('https://storage.googleapis.com/bkjhd-sjhgsd-sq-iuoiu-iu-h-kjhkjh-jh/model/model.pkl')
