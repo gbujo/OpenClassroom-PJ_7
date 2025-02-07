@@ -16,13 +16,18 @@ sys.path.append(chemin_module)
 # Maintenant, vous pouvez importer le module
 import predict_client  # dans répertoire différent
 
+import requests  # Pour call API prédiction
+
+
 # Variables globales
 #
 
 
 
 @st.cache_data
-def load_data(data_path, domain_features):
+def load_data():
+    # Chemin d'accès aux datas
+    data_path = 'https://storage.googleapis.com/bkjhd-sjhgsd-sq-iuoiu-iu-h-kjhkjh-jh/input'
     data = pd.read_csv(f'{data_path}/application_train_final.csv', nrows=100000)
     data = data.sample(50000, random_state=145)
     client_base =  pd.read_csv(f'{data_path}/application_test_final.csv', nrows=1000)
@@ -30,10 +35,40 @@ def load_data(data_path, domain_features):
     return data, client_base
 
 @st.cache_data
-def load_client(id_client, client_base, domain_features):
+def get_client(id_client, client_base, domain_features):
 #    client_data = client_base.loc[client_base['SK_ID_CURR'] == id_client, domain_features].stack()
     client_data = client_base.loc[client_base['SK_ID_CURR'] == id_client, domain_features]
     return client_data
+
+def get_prediction_oneclient(oneclient):
+    """ Appel API prediction pour 1 client
+    Input :
+        - oneclient : dataframe pour 1 client
+    Output :
+        - client_decision [0,1]
+        - client_score (sur 100)
+        - seuil_decision (sur 100)
+    """
+    #url = "http://localhost:8080/api/predict"  # Serveur Flask local
+    url = 'https://predictocpj7-1013078366791.europe-west9.run.app/api/predict'  # On GCP
+    # Convertir en float et sous la forme d'un dictionnaire les données clients
+    client_data = oneclient.astype(float).to_dict(orient='records')[0]
+    response = requests.post(url, json=client_data)
+
+    if response.status_code == 200:
+        print("Requête POST réussie")
+        print(response.text)
+        print("Contenu de la réponse :", response.json())
+        client_decision, client_score, seuil_decision = *response.json().values(),
+    else:
+        st.write("Erreur lors de la requête POST")
+        st.write("Code de statut :", response.status_code)
+        st.write("Contenu de la réponse :", response.text)
+        client_decision, client_score, seuil_decision = 1, 0, 99
+
+    st.write(client_decision, client_score, seuil_decision)
+   
+    return client_decision, client_score, seuil_decision
 
 # Afficher une jauge
 #
@@ -68,8 +103,6 @@ def main():
     
         # Paramètres Features
         #
-        # Chemin d'accès aux datas
-        data_path = 'https://storage.googleapis.com/bkjhd-sjhgsd-sq-iuoiu-iu-h-kjhkjh-jh/input'
 
 #        # Liste features
 #        feature_domain=['DAYS_BIRTH', 'CODE_GENDER_F', 'FLAG_RISKED_ORGANIZATION_TYPE', 
@@ -103,7 +136,7 @@ def main():
         # Create a text element and let the reader know the data is loading.
         data_load_state = st.text('Loading data...')
         # Load data
-        data, client_base = load_data(data_path, feature_domain)
+        data, client_base = load_data()
         # Notify the reader that the data was successfully loaded.
         data_load_state.text("")
         
@@ -117,7 +150,7 @@ def main():
                                     placeholder='Renseigner un numéro de client')  # Input ID client
         if id_client is None :
             raise ValueError('Renseigner un numéro de client')
-        client_data = load_client(id_client, client_base, feature_domain)  # Recherche infos sur le client
+        client_data = get_client(id_client, client_base, feature_domain)  # Recherche infos sur le client
         if client_data.empty :
             raise ValueError('Numéro de client inconnu')
         st.subheader('Client data :')
@@ -128,13 +161,10 @@ def main():
         
         # Prédictions sur le client courant 
         #
-#        y_decision, y_score, seuil_decision = predict_client.predict_client(client_data.to_numpy().reshape(1, -1))
-#        client_decision, client_score = y_decision[0], y_score[0,1]  # Rècupère les valeurs pour 1er client
-#        client_score = client_score*100
-#        seuil_decision = seuil_decision*100
-        client_decision, client_score, seuil_decision = predict_client.predict_Oneclient(client_data.to_numpy())  # Transfo dataframe en array 1 dimension (10 features)
+#        client_decision, client_score, seuil_decision = predict_client.predict_Oneclient(client_data.to_numpy())  # Transfo dataframe en array 1 dimension (10 features)
+        client_decision, client_score, seuil_decision = get_prediction_oneclient(client_data)  # Appel API 
         st.subheader(f'Evaluation client : {"Client risqué" if client_decision == 1 else "Client non risqué"}')
-        st.write(predict_client.predict_Oneclient(client_data.to_numpy()))
+#        st.write(predict_client.predict_Oneclient(client_data.to_numpy()))
         
         
         
