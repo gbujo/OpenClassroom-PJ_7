@@ -1,18 +1,14 @@
 # syntax=docker/dockerfile:1
-FROM ubuntu:22.04
+FROM python:3.9-slim-buster  # Utiliser une image de base Python plus légère et optimisée
 
-#GBUJ
-#WORKDIR /sources/predict
-COPY /sources/predict/requierements.txt /
+WORKDIR /app  # Définir le répertoire de travail dans le conteneur
 
-# install app dependencies
-RUN apt-get update && apt-get install -y python3 python3-pip
-RUN pip install -r requierements.txt
+COPY /sources/predict/requierements.txt .  # Copier seulement le fichier requirements.txt
+RUN pip install --no-cache-dir -r requierements.txt  # Installer les dépendances (cache désactivé pour une image plus petite)
 
-# install app
-COPY /sources/predict/main.py /sources/predict/model.pkl /sources/predict/predict_client.py /
+COPY /sources/predict/. .  # Copier tout le code source (plus simple et efficace)
 
-# final configuration
-ENV FLASK_APP=main
-EXPOSE 8080
-CMD ["flask", "--app main", "run", "--host", "0.0.0.0", "--port", "8080"]
+EXPOSE 8080  # Exposer le port
+
+# Utiliser Gunicorn pour servir l'application Flask en production
+CMD ["gunicorn", "--bind", "0.0.0.0:8080", "main:app"]  # Important pour Cloud Run
