@@ -74,7 +74,8 @@ def predict_Oneclient(X) :
     # Indique le chemin absolu du répertoire contenant le module
 #    model_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'model', 'model.pkl')) 
     model_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'model.pkl'))  # model dans le meme répertoire (c est plus simple)
-    loaded_model = load_model(model_path)
+#    loaded_model = load_model(model_path)
+    loaded_model = load_model('model.pkl')
 #    loaded_model = pickle.load('https://storage.googleapis.com/bkjhd-sjhgsd-sq-iuoiu-iu-h-kjhkjh-jh/model/model.pkl')
     
     if loaded_model:
