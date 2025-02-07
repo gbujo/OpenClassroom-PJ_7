@@ -11,8 +11,9 @@ RUN pip install --no-cache-dir -r requierements.txt
 # Installer les dépendances (cache désactivé pour une image plus petite)
 
 COPY /sources/predict/. .  
+RUN chmod 644 model.pkl
 # Copier tout le code source (plus simple et efficace)
-COPY /sources/predict/model.pkl .
+# COPY /sources/predict/model.pkl .
 
 EXPOSE 8080  
 # Exposer le port
