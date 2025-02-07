@@ -10,9 +10,9 @@ WORKDIR /app
 # RUN source .venv/bin/activate
 
 
-COPY /sources/predict/requierements.txt .  
+COPY /sources/predict/requirements.txt .  
 # Copier seulement le fichier requirements.txt
-RUN pip install --no-cache-dir -r requierements.txt  
+RUN pip install --no-cache-dir -r requirements.txt  
 # Installer les dépendances (cache désactivé pour une image plus petite)
 
 COPY /sources/predict/. .  
