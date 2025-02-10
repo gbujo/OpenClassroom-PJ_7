@@ -1,4 +1,4 @@
-name: cloudrun-deploy
+name: predict-cloudrun-deploy
 on:
   push:
     branches:
