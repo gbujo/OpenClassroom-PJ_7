@@ -7,18 +7,18 @@ jobs:
     runs-on: ubuntu-latest
 steps:
   - name: Checkout code
-    uses: actions/checkout@v3
+      uses: actions/checkout@v3
   - name: Set up Google Cloud SDK
-    uses: google-github-actions/setup-gcloud@v1
+      uses: google-github-actions/setup-gcloud@v1
       with:
         service_account_key: ${{ secrets.GCLOUD_SERVICE_ACCOUNT_KEY }} # Clé de compte de service stockée dans les secrets GitHub
         project_id: nimble-willow-448418-q0 # ID de votre projet Google Cloud
   - name: Build and push Docker image
-    run: |
+      run: |
       gcloud builds submit --region=europe-west1 \
-        --tag europe-west9-docker.pkg.dev/nimble-willow-448418-q0/predict-docker-repo/predict-image:tag1 sources/predict/
+        --tag europe-west9-docker.pkg.dev/nimble-willow-448418-q0/predict-docker-repo/predict-image:tag1 ./sources/predict/
   - name: Deploy to Cloud Run
-    run: |
+      run: |
       gcloud run deploy apipredict \
         --image europe-west9-docker.pkg.dev/nimble-willow-448418-q0/predict-docker-repo/predict-image:tag1 \
         --region europe-west9 --platform managed --allow-unauthenticated
