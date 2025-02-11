@@ -50,7 +50,7 @@ def get_prediction_oneclient(oneclient):
         - seuil_decision (sur 100)
     """
     #url = "http://localhost:8080/api/predict"  # Serveur Flask local
-    url = 'https://predictocpj7-1013078366791.europe-west9.run.app/api/predict'  # On GCP
+    url = 'https://apipredict-1013078366791.europe-west9.run.app/api/predict'  # On GCP
     # Convertir en float et sous la forme d'un dictionnaire les données clients
     client_data = oneclient.astype(float).to_dict(orient='records')[0]
     response = requests.post(url, json=client_data)
