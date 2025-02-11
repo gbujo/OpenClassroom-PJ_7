@@ -6,15 +6,15 @@ import matplotlib.pyplot as plt
 # Import modules homemade
 import dashboard_graphs  # dans le même répertoire
 
-# Cas particullier predict qui pour l'instant n'est pas encore transformée en API
-import sys
-import os
-# Obtenir le chemin absolu du répertoire contenant le module
-chemin_module = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "predict")) # Remonter d'un répertoire parent
+## Cas particullier predict qui pour l'instant n'est pas encore transformée en API
+#import sys
+#import os
+## Obtenir le chemin absolu du répertoire contenant le module
+#chemin_module = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "predict")) # Remonter d'un répertoire parent
 # Ajouter le chemin au sys.path
-sys.path.append(chemin_module)
-# Maintenant, vous pouvez importer le module
-import predict_client  # dans répertoire différent
+#sys.path.append(chemin_module)
+## Maintenant, vous pouvez importer le module
+#import predict_client  # dans répertoire différent
 
 import requests  # Pour call API prédiction
 
