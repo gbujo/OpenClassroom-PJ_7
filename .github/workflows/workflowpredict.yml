@@ -1,26 +1,36 @@
-name: 'Predict Build & Deploy'
+name: GCloud Build and Deploy
+
 on:
   push:
-    branches: 
-      - 'dashboard' # Déclenche le workflow sur les push vers la branche main (ajuster si besoin)
+    branches:
+      - dashboard
 
 jobs:
-  build-and-deploy:
-    runs-on: 'ubuntu-latest'
+  build:
+    runs-on: ubuntu-latest
+
     steps:
-      - name: 'Checkout code'
-        uses: 'actions/checkout@v3'
-      - name: 'Set up Google Cloud SDK'
-          uses: 'google-github-actions/setup-gcloud@v1'
-          with:
-            service_account_key: '${{ secrets.GCLOUD_SERVICE_ACCOUNT_KEY }}' # Clé de compte de service stockée dans les secrets GitHub
-            project_id: 'nimble-willow-448418-q0' # ID de votre projet Google Cloud
-      - name: 'Build and push Docker image'
-          run: |
-            gcloud builds submit --region=europe-west1 \
-              --tag europe-west9-docker.pkg.dev/nimble-willow-448418-q0/predict-docker-repo/predict-image:tag1 sources/predict/
-      - name: 'Deploy to Cloud Run'
-          run: |
-            gcloud run deploy apipredict \
-              --image europe-west9-docker.pkg.dev/nimble-willow-448418-q0/predict-docker-repo/predict-image:tag1 \
-              --region europe-west9 --platform managed --allow-unauthenticated
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v1
+      with:
+        credentials_json: ${{ secrets.GCLOUD_SERVICE_ACCOUNT_KEY }}
+
+    - name: Set up Google Cloud SDK
+      uses: google-github-actions/setup-gcloud@v1
+      with:
+        project_id: nimble-willow-448418-q0
+        service_account_key: ${{ secrets.GCLOUD_SERVICE_ACCOUNT_KEY }}
+
+    - name: Run Cloud Build
+      run: |
+        gcloud builds submit --region=europe-west1 \
+        --tag europe-west9-docker.pkg.dev/nimble-willow-448418-q0/predict-docker-repo/predict-image:tag1 sources/predict/.
+
+    - name: Deploy to Cloud Run
+      run: |
+        gcloud run deploy apipredict \
+        --image europe-west9-docker.pkg.dev/nimble-willow-448418-q0/predict-docker-repo/predict-image:tag1 \
+        --region europe-west9 --platform managed --allow-unauthenticated
