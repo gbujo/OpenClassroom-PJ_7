@@ -5,17 +5,15 @@ FROM python:3.10-slim-buster
 WORKDIR /app  
 # Définir le répertoire de travail dans le conteneur
 
-# Création et activation de l'environnement virtuel
-# RUN python -m venv .venv
-# RUN source .venv/bin/activate
+# Upgrade pip par rapport à l'image FROM
+#RUN pip install --upgrade pip
 
-
-COPY /sources/predict/requirements.txt .  
+COPY requirements.txt .  
 # Copier seulement le fichier requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt  
 # Installer les dépendances (cache désactivé pour une image plus petite)
 
-COPY /sources/predict/. .  
+COPY . .  
 RUN chmod 644 model.pkl
 # Copier tout le code source (plus simple et efficace)
 # COPY /sources/predict/model.pkl .

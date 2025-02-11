@@ -1,0 +1,11 @@
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'europe-west9-docker.pkg.dev/nimble-willow-448418-q0/predict-docker-repo/predict-image:tag1', '.']
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'europe-west9-docker.pkg.dev/nimble-willow-448418-q0/predict-docker-repo/predict-image:tag1']
+- name: 'gcr.io/cloud-builders/gcloud'
+  entrypoint: 'gcloud'
+  args: ['run', 'deploy', 'apipredict', '--image', 'europe-west9-docker.pkg.dev/nimble-willow-448418-q0/predict-docker-repo/predict-image:tag1', '--region', 'europe-west9', '--platform', 'managed', '--allow-unauthenticated']
+
+images:  # Important pour que Cloud Build sache quelles images construire
+- 'europe-west9-docker.pkg.dev/nimble-willow-448418-q0/predict-docker-repo/predict-image:tag1'
