@@ -22,8 +22,6 @@ import requests  # Pour call API prédiction
 # Variables globales
 #
 
-
-
 @st.cache_data
 def load_data():
     # Chemin d'accès aux datas

@@ -13,7 +13,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .  
 # Copier tout le code source (plus simple et efficace)
 
+# Exposer le port sur lequel Streamlit s'exécute
 EXPOSE 8501
-# Exposer le port
 
-CMD ["gunicorn", "--bind", "0.0.0.0:8501", "dashboard:app"]
+# Démarrer l'application Streamlit
+CMD ["streamlit", "run", "dashboard.py"]
