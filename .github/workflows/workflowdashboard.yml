@@ -1,0 +1,37 @@
+name: Predict API GCloud Build and Deploy
+
+on:
+  push:
+    branches:
+      - main
+      - dashboard
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v1
+      with:
+        credentials_json: ${{ secrets.GCLOUD_SERVICE_ACCOUNT_KEY }}
+
+    - name: Set up Google Cloud SDK
+      uses: google-github-actions/setup-gcloud@v1
+      with:
+        project_id: nimble-willow-448418-q0
+        service_account_key: ${{ secrets.GCLOUD_SERVICE_ACCOUNT_KEY }}
+
+    - name: Run Cloud Build
+      run: |
+        gcloud builds submit --region=europe-west1 \
+        --tag europe-west9-docker.pkg.dev/nimble-willow-448418-q0/dashboard-docker-repo/dashboard-image:tag1 sources/dashboard/.
+
+    - name: Deploy to Cloud Run
+      run: |
+        gcloud run deploy webdashboard \
+        --image europe-west9-docker.pkg.dev/nimble-willow-448418-q0/dashboard-docker-repo/dashboard-image:tag1 \
+        --region europe-west9 --platform managed --allow-unauthenticated --memory 1Gi
