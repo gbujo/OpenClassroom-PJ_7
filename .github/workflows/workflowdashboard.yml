@@ -1,4 +1,4 @@
-name: Predict API GCloud Build and Deploy
+name: Dashboard App GCloud Build and Deploy
 
 on:
   push:

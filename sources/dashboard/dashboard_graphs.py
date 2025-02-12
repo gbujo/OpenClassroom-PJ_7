@@ -8,10 +8,12 @@ import seaborn as sns
 from matplotlib.colors import LinearSegmentedColormap, ListedColormap
 import copy
 
+import shap
+
 
 def graph_2categories(axe, data, feature, feature_quali, feature_label, client_target, client_data) :
 
-    target_label = ['Client non risqué', 'Client à risque']
+    target_label = ['Clients non risqués', 'Clients à risque']
     
     feature_quali.append('Client en cours') # Pour la légende, on ajoute le client en cours
     client_feature = client_data[feature].to_list()[0]
@@ -50,12 +52,12 @@ def graph_2categories(axe, data, feature, feature_quali, feature_label, client_t
 
 
     
-def graph_qualitatif(axe, data, feature, feature_quali, feature_label, client_target, client_data) :
+def graph_quantitatif(axe, data, feature, feature_quali, feature_label, client_target, client_data) :
     # Limite min et max selon les quantiles
     xmin = data[feature].quantile(0.05)
     xmax = data[feature].quantile(0.95)
     
-    target_label = ['Client non risqué', 'Client à risque', 'Client en cours']  # Ajoute client en cours pour la légende
+    target_label = ['Clients non risqués', 'Clients à risque', 'Client en cours']  # Ajoute client en cours pour la légende
     
     # Construction serie 2D : data pour les deux valeurs de TARGET
 #    data_grouped = data.groupby('TARGET')[feature]
@@ -203,4 +205,34 @@ def graph_heatmap(axe, data, features, feature_quali, feature_label, client_targ
 #        axe.axvline(client_feature, c='b', ls='--')
 #    axe.legend(target_label, fontsize='small')  # Bug avec legend produite par sns (ordre inversé)
         
+    return axe
+
+def graph_feature_importance_setup(axe, title):
+    axe.tick_params(axis='both', labelsize='small')
+    axe.set_xlabel(axe.get_xlabel(), fontsize='small')
+    # Récupérer les objets texte (annotations)
+    texts = [child for child in axe.get_children() if isinstance(child, plt.Text)]
+    # Modifier la taille du texte pour chaque annotation
+    for text in texts:
+        text.set_size('small')    
+    axe.set_title(title, fontsize='large')
+    return axe
+
+def graph_feature_importance_global(axe, shap_values, rang):
+    shap.plots.bar(shap_values, ax=axe)
+    axe = graph_feature_importance_setup(axe, 'Feature importance globale')
+#    axe.set_title('Feature importance globale', fontsize='medium')
+#    axe.tick_params(axis='both', labelsize='small')
+#    axe.set_xlabel(axe.get_xlabel(), fontsize='small')
+#
+#    # Récupérer les objets texte (annotations)
+#    texts = [child for child in axe.get_children() if isinstance(child, plt.Text)]
+#    # Modifier la taille du texte pour chaque annotation
+#    for text in texts:
+#        text.set_size('small')    
+    return axe
+
+def graph_feature_importance_local(axe, shap_values, rang):
+    shap.plots.bar(shap_values[rang], ax=axe)
+    axe = graph_feature_importance_setup(axe, 'Feature importance locale')
     return axe

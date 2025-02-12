@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START cloudrun_helloworld_service]
 import os
 
 from flask import Flask, request, jsonify
@@ -99,4 +98,3 @@ def APIpredict():
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))  # Lance en local un serveur : http://localhost:8080/
-# [END cloudrun_helloworld_service]
