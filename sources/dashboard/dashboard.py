@@ -138,7 +138,9 @@ def afficher_jauge(valeur, titre, seuil, min_val=0, max_val=100):
 
 
 def main():
-    try:
+    try:  
+        # Sélection client
+        #
         st.title('Credit approval dashboard')
     
         # Paramètres Features
@@ -190,9 +192,9 @@ def main():
                                     placeholder='Renseigner un numéro de client')  # Input ID client
         if id_client is None :
             raise ValueError('Renseigner un numéro de client')
-        client_data, client_rang = get_client(id_client, client_base, feature_domain)  # Recherche infos sur le client
-        if client_data.empty :
+        if len(client_base.loc[client_base['SK_ID_CURR'] == id_client, :]) == 0 :
             raise ValueError('Numéro de client inconnu')
+        client_data, client_rang = get_client(id_client, client_base, feature_domain)  # Recherche infos sur le client
         st.subheader('Client data :')
         client_data_affichage = client_data.copy()
         client_data_affichage.columns = list(feature_label.values())
@@ -286,8 +288,6 @@ def main():
         fig, ax = plt.subplots(1,1, layout='constrained')
         _ = dashboard_graphs.graph_feature_importance_local(ax, client_base_shap, client_rang)
         st.pyplot(fig)  # On passe directement l'objet figure
-        
-
 
     except ValueError as e:
         st.write(f'Error : {e}')
