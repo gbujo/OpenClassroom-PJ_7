@@ -3,9 +3,11 @@ import os
 from flask import Flask, request, jsonify
 import numpy as np
 
-import predict_client
+from predict import create_app, predict_client
 
-app = Flask(__name__)
+# Remonte la création de app dans create_app() dans __init__.py
+#app = Flask(__name__)
+app = create_app()
 
 @app.route("/liretxt")
 def lire_txt():

@@ -1,3 +1,5 @@
-examples
-helloworld
-set-up
+examples/
+helloworld/
+set-up/
+sources/__pycache__/
+sources/predict/.pytest_cache

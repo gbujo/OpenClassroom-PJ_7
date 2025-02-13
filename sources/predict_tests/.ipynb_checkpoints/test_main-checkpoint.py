@@ -1,11 +1,11 @@
 import pytest
-from sources.predict.main import main as app  # Importez votre application Flask
+from predict import main
 
-@pytest.fixture
-def client():
-    """Crée un client de test pour l'application Flask."""
-    with app.test_client() as client:
-        yield client
+#@pytest.fixture
+#def client():
+#    """Crée un client de test pour l'application Flask."""
+#    with app.test_client() as client:
+#        yield client
 
 def test_hello_world(client):
     """Teste la route '/'."""
@@ -15,10 +15,6 @@ def test_hello_world(client):
 
 def test_lire_txt_fichier_trouve(client):
     """Teste la route '/liretxt' lorsque le fichier existe."""
-    # Créer un fichier test.txt pour ce test
-    with open("test.txt", "w") as f:
-        f.write("Ceci est un test.")
-
     response = client.get('/liretxt')
     assert response.status_code == 200
     assert b"Fichier test.txt : Ceci est un test." in response.data
