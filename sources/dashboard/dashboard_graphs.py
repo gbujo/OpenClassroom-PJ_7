@@ -10,6 +10,8 @@ import copy
 
 import shap
 
+import streamlit as st
+
 
 def graph_2categories(axe, data, feature, feature_quali, feature_label, client_target, client_data) :
 
@@ -25,7 +27,8 @@ def graph_2categories(axe, data, feature, feature_quali, feature_label, client_t
     
     # Positionnement du client 
     pos_client = np.zeros(2*2).reshape(2,2)
-    pos_client[client_feature, client_target] = 1
+#    pos_client[client_feature, client_target] = 1
+    pos_client[client_feature, :] = 1
     pos_client = pos_client * proportions  # On ne garde que la valeur Target et Genre correspondant au client
     
     bottom = np.zeros(2)
@@ -89,58 +92,8 @@ def graph_quantitatif(axe, data, feature, feature_quali, feature_label, client_t
 
     return axe
 
-def graph_bivarie_marker(axe, data, features, feature_quali, feature_label, client_target, client_data, streamlit) :
-    # Affiche un graph bi-varié
-    # Ici feature, feature_label, feature_label sont des arrays de longeur 2 (pour les 2 variables)
-    
-    # Récupère les 2 features :
-    feat1, feat2 = features
-    
-    # Limite min et max selon les quantiles (pour les 2 features)
-    xmin = [data[feat].quantile(0.05) for feat in features]
-    xmax = [data[feat].quantile(0.95) for feat in features]
-    
-    #target_label = ['Client non risqué', 'Client à risque', 'Client en cours']  # Ajoute client en cours pour la légende
-    
-    # Cut data selon les quantiles pour facilité la lecture du graph
-    mask = (
-        (data[feat1] >= xmin[0]) & (data[feat1] <= xmax[0])
-           &
-        (data[feat2] >= xmin[1]) & (data[feat2] <= xmax[1])
-           )
-    data_cut = data.loc[mask, [feat1, feat2, 'TARGET', 'y_pred_proba']]
-    
 
-    # Positionnement du client 
-#    client_feature = client_data[feature].to_list()[0]
-
-    fig = sns.relplot(
-#        data=data_cut.loc[data_cut['TARGET'] == 1, :],
-        data=data_cut.sample(5000, random_state=145),
-        x=feat1, y=feat2,
-        hue='y_pred_proba', style='TARGET', col='TARGET',
-        palette=sns.diverging_palette(145, 20, s=60, as_cmap=True)
-    )
-#    fig.axes[0].set_ylabel('Proportion des clients', fontsize='small')
-
-
-#    axe.set_xlabel(feature_label, fontsize='medium')
-#    axe.set_ylabel('Proportion des clients', fontsize='small')
-#    axe.set_title(feature_label, fontsize='medium')
-#    axe.tick_params(axis='both', labelsize='small')
-#    if client_feature < xmin : 
-#        axe.axvline(xmin, c='b', ls='--')
-#    elif client_feature > xmax :
-#        axe.axvline(xmax, c='b', ls='--')
-#        plt.arrow(0, xmax, 0.5, 0.5)
-#    else :
-#        axe.axvline(client_feature, c='b', ls='--')
-#    axe.legend(target_label, fontsize='small')  # Bug avec legend produite par sns (ordre inversé)
-#    plt.show()
-        
-    return fig
-
-def graph_heatmap(axe, data, features, feature_quali, feature_label, client_target, client_data, seuil_decision, cbar) :
+def graph_heatmap(axe, data, target, features, feature_quali, feature_label, client_target, client_data, seuil_decision, cbar) :
     # Affiche une heatmap avec la color map centrée sur le seuil de décision
     # Ici feature, feature_label, feature_label sont des arrays de longeur 2 (pour les 2 variables)
     
@@ -156,28 +109,36 @@ def graph_heatmap(axe, data, features, feature_quali, feature_label, client_targ
         (data[feat1] >= xmin[0]) & (data[feat1] <= xmax[0])
            &
         (data[feat2] >= xmin[1]) & (data[feat2] <= xmax[1])
-           )
+           &
+        (data['TARGET'] == target)
+        )
     data_cut = data.loc[mask, [feat1, feat2, 'TARGET', 'y_pred_proba']]
 
     # Discretisation des features
     #
+    nbins = 10  # Nombre de bins
+    list_bins=[]  # Liste des bins pour chaque feature
     df = pd.DataFrame()
     df['y_pred_proba'] = data_cut['y_pred_proba'].copy()
-    df[f'{feat1}_BINS'], listbins_1 = pd.cut(data_cut[feat1], bins=10, labels=False, retbins=True)
-    df[f'{feat2}_BINS'], listbins_2 = pd.cut(data_cut[feat2], bins=10, labels=False, retbins=True)    
+    for feat in features :
+        df[f'{feat}_BINS'], retbins = pd.cut(data_cut[feat], bins=nbins, labels=False, retbins=True)
+        list_bins.append(retbins)
 
-    # Calcul du score moyen par cellule
-    df_grouped = df.groupby([f'{feat1}_BINS', f'{feat2}_BINS'])[['y_pred_proba']].mean().reset_index()
+#    # Calcul du score moyen par cellule
+    pivot_table = df.pivot_table(index=f'{feat1}_BINS', columns=f'{feat2}_BINS', values='y_pred_proba', aggfunc='mean')
+    # Ajouter colonnes vides avec des valeurs vides
+    for i in range(nbins):
+        if i not in pivot_table.columns :
+            pivot_table.loc[:, i] = np.nan
+        if i not in pivot_table.index.to_list() :
+            pivot_table.loc[i, :] = np.nan
     
-    # Affichage dans Heatmap
-    #
-    # Mise en forme d'une pivot table pour la heatmap
-    pivot_table = df_grouped.pivot(index=f'{feat1}_BINS', columns=f'{feat2}_BINS', values='y_pred_proba')
-    # Trier l'index par ordre alphabétique décroissant
-    pivot_table = pivot_table.sort_index(ascending=False)
-
+    # Trier index et colonnes par ordre alphabétique décroissant
+    pivot_table = pivot_table.sort_index(axis= 0, ascending=False)  # Trie lignes
+    pivot_table = pivot_table.sort_index(axis= 1, ascending=True)  # Trie colonnes
+    
     # Création Colomap centrée sur le seuil de décision
-    seuil_decision = 0.3
+    seuil_decision = seuil_decision / 100.0  # color map entre 0 et 1
     colors = ['darkgreen', 'lightgreen', 'mistyrose', 'red']  # CSS Colors
     nodes = [0.0, seuil_decision-0.05, seuil_decision, 1.0]
     cmap_seuil_decision = LinearSegmentedColormap.from_list("mycmap", list(zip(nodes, colors)))
@@ -186,26 +147,41 @@ def graph_heatmap(axe, data, features, feature_quali, feature_label, client_targ
                 vmin=0, vmax=1,
                ax=axe, cbar=cbar)
 
-
     # Positionnement du client 
-#    client_feature = client_data[feature].to_list()[0]
+    X = client_data[features].to_numpy()[0].tolist()  # Les 2 valeurs des features pour le client
+    # Revenir entre [xmin,xmax] si on est au-delà
+    X = [valeur_dans_intervalle(val, val_min, val_max) for val, val_min, val_max in zip(X, xmin, xmax)]
+    # Recherche du rang du bin pour chaque feature
+    Xbin = []
+    for f in range(2):
+        isel=0
+        for i in range(nbins):
+            if X[f] > list_bins[f][i] and X[f] <= list_bins[f][i+1] :
+                isel=i
+        Xbin.append(isel)
 
+    axe.plot([Xbin[1]+0.5], [nbins-Xbin[0]-0.5], marker='*', c='b')
 
-
+    # Set-up graphs
     axe.set_xlabel(feature_label[1], fontsize='medium')
     axe.set_ylabel(feature_label[0], fontsize='medium')
     axe.set_title('Carte des scores moyen des clients', fontsize='medium')
     axe.tick_params(axis='both', labelsize='x-small')
-#    if client_feature < xmin : 
-#        axe.axvline(xmin, c='b', ls='--')
-#    elif client_feature > xmax :
-#        axe.axvline(xmax, c='b', ls='--')
-#        plt.arrow(0, xmax, 0.5, 0.5)
-#    else :
-#        axe.axvline(client_feature, c='b', ls='--')
-#    axe.legend(target_label, fontsize='small')  # Bug avec legend produite par sns (ordre inversé)
-        
+       
     return axe
+
+def valeur_dans_intervalle(val, val_min, val_max):
+  """
+  Retourne la valeur de val si elle se trouve dans l'intervalle [val_min, val_max],
+  sinon retourne la borne la plus proche de l'intervalle.
+  """
+  if val_min <= val <= val_max:
+    return val
+  elif val < val_min:
+    return val_min
+  else:
+    return val_max
+
 
 def graph_feature_importance_setup(axe, title):
     axe.tick_params(axis='both', labelsize='small')
@@ -221,18 +197,10 @@ def graph_feature_importance_setup(axe, title):
 def graph_feature_importance_global(axe, shap_values, rang):
     shap.plots.bar(shap_values, ax=axe)
     axe = graph_feature_importance_setup(axe, 'Feature importance globale')
-#    axe.set_title('Feature importance globale', fontsize='medium')
-#    axe.tick_params(axis='both', labelsize='small')
-#    axe.set_xlabel(axe.get_xlabel(), fontsize='small')
-#
-#    # Récupérer les objets texte (annotations)
-#    texts = [child for child in axe.get_children() if isinstance(child, plt.Text)]
-#    # Modifier la taille du texte pour chaque annotation
-#    for text in texts:
-#        text.set_size('small')    
     return axe
 
 def graph_feature_importance_local(axe, shap_values, rang):
     shap.plots.bar(shap_values[rang], ax=axe)
     axe = graph_feature_importance_setup(axe, 'Feature importance locale')
     return axe
+

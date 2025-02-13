@@ -136,30 +136,21 @@ def afficher_jauge(valeur, titre, seuil, min_val=0, max_val=100):
     st.plotly_chart(fig)
     return
 
-
+#
+#  Main
+#
 def main():
     try:  
         # Sélection client
         #
-        st.title('Credit approval dashboard')
+        st.title('Evaluation du score crédit')
     
         # Paramètres Features
         #
-
-#        # Liste features
-#        feature_domain=['DAYS_BIRTH', 'CODE_GENDER_F', 'FLAG_RISKED_ORGANIZATION_TYPE', 
-#                 'RATIO_INCOME_TO_FAM_MEMBERS', 'FLAG_STABLE_INCOME_TYPE',
-#                 'EXT_SOURCE_2',
-#                 'AMT_ALL_SUM_MEAN', 'RATIO_ALL_SUM_DEBT_TO_INCOME', 'RATIO_ALL_SUM_OVERDUE_TO_INCOME',
-#                 'RATIO_ALL_MAX_OVERDUE_TO_INCOME']
-
         # label des valeurs à afficher pour les features qualitatives
         feature_quali = {'CODE_GENDER_F': ['Autre genre','Genre féminin'],
                         'FLAG_RISKED_ORGANIZATION_TYPE': ['Autre organisation','Auto-entrepreneur'],
                         'FLAG_STABLE_INCOME_TYPE': ['Autre', 'Pension et retraite']}
-        # Label à afficher pour les features
-#        feature_label=['Age', 'Genre', 'Organisation professionelle', 'Revenus par membre du foyer', 'Stabilité revenus', 'Evaluation risque externe',
-#                        'Montant moyen crédits passés', 'Ratio d\'endettement', 'Ratio défault de paiement', 'Ratio maximal défaut paiement mensuel']
         feature_label={'DAYS_BIRTH': 'Age',
                         'CODE_GENDER_F': 'Genre',
                         'FLAG_RISKED_ORGANIZATION_TYPE': 'Organisation professionelle', 
@@ -190,20 +181,22 @@ def main():
         #
         id_client = st.number_input(label='Numéro client :', value=None, format="%d", min_value=0, step=1, 
                                     placeholder='Renseigner un numéro de client')  # Input ID client
+        
+        # Vérifications id Client
         if id_client is None :
             raise ValueError('Renseigner un numéro de client')
         if len(client_base.loc[client_base['SK_ID_CURR'] == id_client, :]) == 0 :
             raise ValueError('Numéro de client inconnu')
+
+        # Client sélectionné
         client_data, client_rang = get_client(id_client, client_base, feature_domain)  # Recherche infos sur le client
-        st.subheader('Client data :')
+        st.subheader('Informations sur le client :')
         client_data_affichage = client_data.copy()
         client_data_affichage.columns = list(feature_label.values())
         st.write(client_data_affichage.stack())  # Données du client dans Test
 #        st.write(client_base_shap[client_rang].data)  # Données du client dans SHAP
 #        st.write(client_rang)
                
-        
-        
         # Prédictions sur le client courant 
         #
         # Create a text element and let the reader know the score is being computed
@@ -215,28 +208,43 @@ def main():
         # Notify the reader that the score was successfully computed
         predict_state.text("")
         
+        # Affichage résultat score client
         st.subheader(f'Evaluation client : {"Client risqué" if client_decision == 1 else "Client non risqué"}')
 #        st.write(predict_client.predict_Oneclient(client_data.to_numpy()))
-        
-        
-        
         afficher_jauge(client_score, "Score risque client", seuil_decision, 0, 100)
-        
+
+        # Feature importance
+        #
+        st.subheader('Influence des données du client sur le score :')
+        # feature importance locale
+        fig, ax = plt.subplots(1,1, layout='constrained')
+        _ = dashboard_graphs.graph_feature_importance_local(ax, client_base_shap, client_rang)
+        st.pyplot(fig)  # On passe directement l'objet figure
+
+        # Feature importance globale
+        fig, ax = plt.subplots(1,1, layout='constrained')
+        _ = dashboard_graphs.graph_feature_importance_global(ax, client_base_shap, client_rang)
+        st.pyplot(fig)  # On passe directement l'objet figure
+
         # Comparaison avec Autres clients
         #
         st.subheader('Positionnement du client :')
+
+        # Sélection 2 features
         feature_selected = st.multiselect(label='Selectionner 2 features à afficher :',
                                            options=list(feature_label.values()),
                                            max_selections=2,
                                           placeholder='Sélectionner 2 features à comparer')
+
+        # Controle sélection 2 features
         if len(feature_selected) != 2 :
             raise ValueError('Vous devez selectionner 2 features')
-            
+
+        # Graphs pour les 2 features
+        #
         feature1 = feature_label_inverse[feature_selected[0]]
         feature2 = feature_label_inverse[feature_selected[1]]
                      
-        # Graphs pour les 2 features
-        #
         fig, axs = plt.subplots(1,2, layout='constrained', figsize=[6, 3])
 
         # Choix du graph selon le type de features (quanti ou quali)
@@ -250,43 +258,29 @@ def main():
         
         st.pyplot(fig)  # On passe directement l'objet figure
 
-        # Grah bi-varié OLD
-        #
-        # fig = dashboard_graphs.graph_bivarie_marker(None, data, [feature1, feature2], None, None,
-        #                                          client_target=client_decision, client_data=client_data, streamlit=st)
-        # st.pyplot(fig)  # On passe directement l'objet figure
-
         # Heatmaps
         #
         st.write('Carte des scores moyen des clients')
         fig, axs = plt.subplots(1,2, layout='constrained', figsize=[6, 3])
 
         # Client non risqué
-        _ = dashboard_graphs.graph_heatmap(axs[0], data.loc[data['TARGET'] == 0, :],
+#        _ = dashboard_graphs.graph_heatmap(axs[0], data.loc[data['TARGET'] == 0, :], target=0,
+        _ = dashboard_graphs.graph_heatmap(axs[0], data, 0,
                                            [feature1, feature2],
                                            None, [feature_label[feature1], feature_label[feature2]],
                                            client_target=client_decision, client_data=client_data, seuil_decision=seuil_decision,
-                                          cbar=False)
+                                           cbar=False)
         axs[0].set_title('Clients non risqués', fontsize='medium')
         
         # Client risqué
-        _ = dashboard_graphs.graph_heatmap(axs[1],  data.loc[data['TARGET'] == 1, :],
+#        _ = dashboard_graphs.graph_heatmap(axs[1],  data.loc[data['TARGET'] == 1, :], target=1,
+        _ = dashboard_graphs.graph_heatmap(axs[1],  data, 1,
                                            [feature1, feature2],
-                               None, [feature_label[feature1], feature_label[feature2]],
-                               client_target=client_decision, client_data=client_data, seuil_decision=seuil_decision,
-                                          cbar=True)
+                                           None, [feature_label[feature1], feature_label[feature2]],
+                                           client_target=client_decision, client_data=client_data, seuil_decision=seuil_decision,
+                                           cbar=True)
         axs[1].set_title('Clients à risque', fontsize='medium')
 
-        st.pyplot(fig)  # On passe directement l'objet figure
-
-        # Feature importance
-        #
-        st.subheader('Influence des données du client sur le score :')
-        fig, ax = plt.subplots(1,1, layout='constrained')
-        _ = dashboard_graphs.graph_feature_importance_global(ax, client_base_shap, client_rang)
-        st.pyplot(fig)  # On passe directement l'objet figure
-        fig, ax = plt.subplots(1,1, layout='constrained')
-        _ = dashboard_graphs.graph_feature_importance_local(ax, client_base_shap, client_rang)
         st.pyplot(fig)  # On passe directement l'objet figure
 
     except ValueError as e:
