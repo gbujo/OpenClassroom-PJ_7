@@ -1,5 +1,5 @@
 import pytest
-from my_project import create_app
+from predict import create_app
 
 @pytest.fixture()
 def app():

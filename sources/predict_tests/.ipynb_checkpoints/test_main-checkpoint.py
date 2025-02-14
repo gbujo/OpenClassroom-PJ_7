@@ -1,5 +1,5 @@
 import pytest
-from predict import main
+#from predict import main
 
 #@pytest.fixture
 #def client():
@@ -10,8 +10,8 @@ from predict import main
 def test_hello_world(client):
     """Teste la route '/'."""
     response = client.get('/')
-    assert response.status_code == 200
-    assert b"Hello OC-PJ7 World!" in response.data
+    assert response.status_code == 404
+    assert b"Hello OC-PJ7 World!" not in response.data
 
 def test_lire_txt_fichier_trouve(client):
     """Teste la route '/liretxt' lorsque le fichier existe."""

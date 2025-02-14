@@ -1,8 +1,0 @@
-setup.py
-predict/__init__.py
-predict/main.py
-predict/predict_client.py
-predict.egg-info/PKG-INFO
-predict.egg-info/SOURCES.txt
-predict.egg-info/dependency_links.txt
-predict.egg-info/top_level.txt

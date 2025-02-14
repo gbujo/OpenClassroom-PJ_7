@@ -3,7 +3,8 @@ import os
 from flask import Flask, request, jsonify
 import numpy as np
 
-from predict import create_app, predict_client
+import predict.predict_client as predict_client  # Importe un module (module predict_client dans le package predict)
+from predict import create_app  # Importe une fonction
 
 # Remonte la création de app dans create_app() dans __init__.py
 #app = Flask(__name__)

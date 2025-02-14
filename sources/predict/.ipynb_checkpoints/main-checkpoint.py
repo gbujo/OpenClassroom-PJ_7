@@ -3,7 +3,11 @@ import os
 from flask import Flask, request, jsonify
 import numpy as np
 
-from predict import create_app, predict_client
+#from predict import create_app, predict_client
+# Ce module étant le module main, il faut utiliser des chemins absolus pour indentifier lesmodules à importer
+import predict.predict_client as predict_client# Importe un module
+# import predict.create_app  # Cette écriture ne fonctionne pas car creat_appp est une fonction
+from predict import create_app  # Importe une fonction
 
 # Remonte la création de app dans create_app() dans __init__.py
 #app = Flask(__name__)
