@@ -28,7 +28,7 @@ jobs:
     - name: Run Cloud Build
       run: |
         gcloud builds submit --region=europe-west1 \
-        --tag europe-west9-docker.pkg.dev/nimble-willow-448418-q0/predict-docker-repo/predict-image:tag1 sources/predict/.
+        --tag europe-west9-docker.pkg.dev/nimble-willow-448418-q0/predict-docker-repo/predict-image:tag1 project_predit/predict/.
 
     - name: Deploy to Cloud Run
       run: |

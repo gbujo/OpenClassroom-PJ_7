@@ -1,0 +1,18 @@
+[project]
+name = "predict"
+version = "1.0.0"
+description = "API Predict"
+dependencies = [
+    "flask",
+]
+
+[build-system]
+requires = ["flit_core<4"]
+build-backend = "flit_core.buildapi"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+source = ["predict"]

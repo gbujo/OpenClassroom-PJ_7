@@ -1,7 +1,0 @@
-[project]
-name = "predict"
-version = "1.0.0"
-description = "API pour prédire le score d'un client"
-dependencies = [
-    "flask",
-]
