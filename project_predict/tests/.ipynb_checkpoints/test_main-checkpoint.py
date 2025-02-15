@@ -15,12 +15,6 @@ def test_hello_world(client):
     assert response.status_code == 200
     assert b"Hello OC-PJ7 World!" in response.data
 
-def test_lire_txt_fichier_trouve(client):
-    """Teste la route '/liretxt' lorsque le fichier existe."""
-    response = client.get('/liretxt')
-    assert response.status_code == 200
-    assert b"Fichier test.txt : Ca marche enfin" in response.data
-
 def test_predictbouchon(client):
     """Teste la route '/predictbouchon'."""
     response = client.get('/predictbouchon')
