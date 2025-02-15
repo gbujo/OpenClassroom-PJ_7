@@ -18,6 +18,7 @@ RUN chmod 644 model.pkl
 # Copier tout le code source (plus simple et efficace)
 # COPY /sources/predict/model.pkl .
 
+# Installation de mon package predict_package (défini dans pyproject.toml)
 RUN pip install .
 
 EXPOSE 8080  
