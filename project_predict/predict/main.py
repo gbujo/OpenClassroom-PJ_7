@@ -15,7 +15,8 @@ import numpy as np
 #app = create_app()
 
 # Sans __init__
-import predict_client
+import predict.predict_client as predict_client
+#import predict_client
 app = Flask(__name__)
 
 
