@@ -8,13 +8,16 @@ import numpy as np
 
 # sur Gcloud Run, l'application main est lancée directement, sans référence au package. Le chemin du package ne fonctionne plus
 #from predict import predict_client
-from predict import predict_client
 
-from predict import create_app  # Importe une fonction
+# Avec __init__
+#from predict import predict_client
+#from predict import create_app  # Importe une fonction
+#app = create_app()
 
-# Remonte la création de app dans create_app() dans __init__.py
-#app = Flask(__name__)
-app = create_app()
+# Sans __init__
+import predict_client
+app = Flask(__name__)
+
 
 @app.route("/liretxt")
 def lire_txt():
