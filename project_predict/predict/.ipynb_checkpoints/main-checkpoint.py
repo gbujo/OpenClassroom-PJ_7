@@ -3,8 +3,12 @@ import os
 from flask import Flask, request, jsonify
 import numpy as np
 
-#import predict.predict_client as predict_client  # Importe un module (module predict_client dans le package predict)
-from . import predict_client  # j'essaye cette formulation plus simple sans référence au package
+# Importe un module (module predict_client dans le package predict)
+#import predict.predict_client as predict_client
+
+# sur Gcloud Run, l'application main est lancée directement, sans référence au package. Le chemin du package ne fonctionne plus
+#from predict import predict_client
+from predict import predict_client
 
 from predict import create_app  # Importe une fonction
 
@@ -35,6 +39,7 @@ def hello_world():
 @app.route("/predictbouchon")
 def goto_predictbouchon():
     """Appel fonction predict"""
+#    decision, score, seuil_decision = predict_client.predict_client_bouchon(None)
     decision, score, seuil_decision = predict_client.predict_client_bouchon(None)
     return jsonify({"decision": decision, "score": score, "seuil_decision": seuil_decision})
 
@@ -104,3 +109,4 @@ def APIpredict():
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))  # Lance en local un serveur : http://localhost:8080/
+
