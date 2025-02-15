@@ -18,6 +18,8 @@ RUN chmod 644 model.pkl
 # Copier tout le code source (plus simple et efficace)
 # COPY /sources/predict/model.pkl .
 
+RUN pip install .
+
 EXPOSE 8080  
 # Exposer le port
 
