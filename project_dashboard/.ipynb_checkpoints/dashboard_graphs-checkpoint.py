@@ -158,6 +158,8 @@ def graph_heatmap(axe, data, target, features, feature_quali, feature_label, cli
         for i in range(nbins):
             if X[f] > list_bins[f][i] and X[f] <= list_bins[f][i+1] :
                 isel=i
+        if X[f] < list_bins[f][0] : isel = 0  # Cas limite inférieure
+        if X[f] > list_bins[f][nbins-1] : isel = nbins-1  # Cas limite supérieure
         Xbin.append(isel)
 
     axe.plot([Xbin[1]+0.5], [nbins-Xbin[0]-0.5], marker='*', c='b')
